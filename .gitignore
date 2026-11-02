@@ -1,0 +1,10 @@
+.env
+.env.*
+!.env.example
+**/node_modules/
+**/coverage/
+**/test-results/
+**/playwright-report/
+*.log
+.playwright-cli/
+output/

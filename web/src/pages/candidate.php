@@ -1,0 +1,1 @@
+<section class="page-heading"><div><span class="eyebrow">Dossiê do candidato</span><h1>Competências com contexto.</h1><p>Resultados e evidências que ajudam a compreender a trajetória de cada participante.</p></div><a class="button secondary" href="?page=ranking">Voltar ao Talent Pool</a></section><div id="candidate-detail"><p class="loading">Consultando dossiê…</p></div>

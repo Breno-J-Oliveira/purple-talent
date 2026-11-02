@@ -1,0 +1,1 @@
+<section class="panel"><span class="eyebrow">404</span><h1>Esta página não foi encontrada.</h1><p>Use o menu para continuar explorando a plataforma.</p><a class="button primary" href="?page=dashboard">Voltar à visão geral</a></section>

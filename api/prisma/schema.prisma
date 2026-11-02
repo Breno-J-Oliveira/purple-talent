@@ -1,0 +1,85 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CANDIDATE
+  RECRUITER
+  ADMIN
+}
+
+enum Track {
+  RED
+  BLUE
+  PURPLE
+}
+
+model User {
+  id           String     @id @default(cuid())
+  email        String     @unique
+  name         String
+  passwordHash String
+  role         Role       @default(CANDIDATE)
+  candidate    Candidate?
+  sessions     Session[]
+}
+
+model Session {
+  tokenHash String   @id
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  @@index([expiresAt])
+}
+
+model Candidate {
+  id          String       @id @default(cuid())
+  userId      String       @unique
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  handle      String       @unique
+  track       Track
+  bio         String
+  location    String
+  skills      String[]
+  submissions Submission[]
+}
+
+model Challenge {
+  id          String       @id @default(cuid())
+  title       String
+  description String
+  track       Track
+  points      Int
+  difficulty  String
+  flagHash    String
+  active      Boolean      @default(true)
+  submissions Submission[]
+}
+
+model Submission {
+  id          String    @id @default(cuid())
+  candidateId String
+  candidate   Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  challengeId String
+  challenge   Challenge @relation(fields: [challengeId], references: [id], onDelete: Restrict)
+  writeup     String
+  points      Int
+  createdAt   DateTime  @default(now())
+  @@unique([candidateId, challengeId])
+}
+
+model Job {
+  id           String   @id @default(cuid())
+  title        String
+  company      String
+  description  String
+  track        Track
+  location     String
+  requirements String[]
+  active       Boolean  @default(true)
+}

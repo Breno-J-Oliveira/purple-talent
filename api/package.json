@@ -1,0 +1,27 @@
+{
+  "name": "purple-talent-api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node --test test/app.test.js",
+    "test:db": "node --test test/database.integration.js",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate deploy",
+    "db:deploy": "prisma migrate deploy",
+    "db:seed": "node prisma/seed.js"
+  },
+  "dependencies": {
+    "@fastify/cookie": "^11.0.2",
+    "@fastify/rate-limit": "^10.3.0",
+    "@prisma/client": "6.19.0",
+    "fastify": "^5.6.1"
+  },
+  "devDependencies": { "prisma": "6.19.0" },
+  "overrides": {
+    "@prisma/config": { "effect": "^3.20.0", "deepmerge-ts": "^8.0.0" }
+  },
+  "engines": { "node": ">=22" }
+}

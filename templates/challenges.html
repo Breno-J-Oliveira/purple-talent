@@ -1,0 +1,11 @@
+{% extends "base.html" %}{% block content %}
+<h1>Desafios CTF</h1><p>Investigue o cenário, encontre a flag e registre sua evolução.</p>
+<div class="tools" aria-label="Filtrar por categoria"><a class="chip" href="/challenges" {% if not category %}aria-current="true"{% endif %}>Todos</a>
+{% for cat in categories %}<a class="chip" href="{{ url_for('challenges',category=cat) }}" {% if category == cat %}aria-current="true"{% endif %}>{{ cat }}</a>{% endfor %}</div>
+<div class="grid">
+{% for c in items %}
+<a class="card {{ 'done' if c.id in solved }}" href="/challenge/{{ c.id }}">
+<span class="tag {{ c.side|lower|replace(' ', '') }}">{{ c.side }}</span>
+<h3>{{ c.title }}</h3><p>{{ c.category }} · {{ c.points }} pts</p>
+{% if c.id in solved %}<b>✔ Concluído</b>{% endif %}</a>
+{% endfor %}</div>{% endblock %}

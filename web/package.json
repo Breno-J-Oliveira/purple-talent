@@ -1,8 +1,0 @@
-{
-  "name": "purple-talent-web",
-  "version": "0.1.0",
-  "private": true,
-  "type": "module",
-  "scripts": {"build": "node scripts/fonts.mjs && tailwindcss -i src/app/styles/input.css -o public/assets/app.css --minify"},
-  "devDependencies": {"tailwindcss": "3.4.19", "@fontsource-variable/inter": "5.2.8", "@fontsource-variable/plus-jakarta-sans": "5.2.8", "@fontsource-variable/jetbrains-mono": "5.2.8"}
-}

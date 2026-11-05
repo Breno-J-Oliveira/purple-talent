@@ -1,0 +1,19 @@
+{% extends "base.html" %}{% block content %}
+<section class="hero"><div><span class="tag">PRÁTICA · EVIDÊNCIA · EVOLUÇÃO</span>
+<h1>Mostre o que você faz, não só o que está no currículo.</h1>
+<p>Resolva desafios CTF, conecte ataque e defesa no Purple Team e desenvolva habilidades com o acompanhamento de mentores.</p>
+<a class="btn" href="{{ '/challenges' if session.user_id else '/register' }}">{{ 'Explorar desafios' if session.user_id else 'Criar meu perfil' }}</a>
+<a class="btn ghost" href="{{ '/purple' if session.user_id else '/login' }}">Conhecer o laboratório</a></div>
+<div class="term mono" aria-label="Exemplo de exercício"><div class="t"><span>exercício · ataque e detecção</span><span class="p">simulação</span></div>
+<pre><span class="r">[red]    reconhecimento da intranet</span>
+<span class="b">[blue]   análise de autenticações</span>
+<span class="p">[purple] correlacionar ataque e alerta</span>
+<span class="g">[lab]    ambiente por participante</span>
+<span class="p">[mentor] evidências para avaliação</span></pre></div></section>
+<div class="stats"><div><b>{{ count }}</b><span>desafios CTF</span></div><div><b>1</b><span>rodada Purple Team</span></div><div><b>{{ points }}</b><span>pontos possíveis em CTF</span></div><div><b>2</b><span>cenários Docker individuais</span></div></div>
+<h2>Aprenda fazendo. Evolua com evidências.</h2><p>Uma jornada para recrutamento e treinamento interno.</p>
+<div class="steps"><div class="card"><span class="n mono">01 / EXPLORAR</span><h3>Resolva CTFs</h3><p>Web, criptografia, análise de logs e engenharia reversa.</p></div>
+<div class="card"><span class="n mono">02 / CORRELACIONAR</span><h3>Conecte os dois lados</h3><p>Relacione técnicas de ataque com alertas e lacunas de detecção.</p></div>
+<div class="card"><span class="n mono">03 / DOCUMENTAR</span><h3>Registre o raciocínio</h3><p>Entregue um relatório para orientar a avaliação do mentor.</p></div>
+<div class="card"><span class="n mono">04 / DESENVOLVER</span><h3>Acompanhe resultados</h3><p>Resultados por participante e equipe, com critérios técnicos e comportamentais.</p></div></div>
+{% endblock %}

@@ -1,0 +1,5 @@
+{% extends "base.html" %}{% block content %}<h1>Ranking do laboratório</h1>
+<p>Resultados reais dos participantes. Cada desafio conta uma vez; Purple Team usa a melhor nota técnica. Visível apenas para usuários do laboratório.</p>
+<div class="table-scroll"><div class="table-scroll"><table><thead><tr><th>#</th><th>Participante</th><th>Equipe</th><th>CTF</th><th>Purple</th><th>Total</th></tr></thead><tbody>
+{% for r in rows %}<tr><td>{{ loop.index }}</td><td>{{ r.name }}</td><td>{{ r.team }}</td><td>{{ r.points }}</td><td>{{ r.purple }}</td><td>{{ r.total }}</td></tr>{% else %}<tr><td colspan="6">Nenhum participante cadastrado.</td></tr>{% endfor %}
+</tbody></table></div></div>{% endblock %}

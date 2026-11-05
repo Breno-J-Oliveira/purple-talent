@@ -1,194 +1,83 @@
-# Purple Talent — Recrutamento por evidências em cibersegurança
+# CTI Purple Security Lab
 
-<p align="center">
-  <img src="docs/assets/banner.svg" alt="Purple Talent: talento se revela no desafio" width="100%">
-</p>
+MVP da proposta de recrutamento e capacitação: desafios CTF, exercícios Purple Team e acompanhamento de mentores. Implementado com Flask, SQLite e Docker Engine. O visual do front fornecido em `Desafio_Ideias` foi adaptado para templates Flask; autenticação, flags, relatórios e pontuação ficam no servidor.
 
-<p align="center">
-  <img src="https://img.shields.io/badge/PHP-8.3-777BB4?style=for-the-badge&logo=php&logoColor=white" alt="PHP">
-  <img src="https://img.shields.io/badge/JavaScript-ES_Modules-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black" alt="JavaScript">
-  <img src="https://img.shields.io/badge/Tailwind_CSS-3-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind CSS">
-  <img src="https://img.shields.io/badge/Node.js-22-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" alt="Node.js">
-  <img src="https://img.shields.io/badge/Fastify-5-000000?style=for-the-badge&logo=fastify&logoColor=white" alt="Fastify">
-  <img src="https://img.shields.io/badge/PostgreSQL-17-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL">
-  <img src="https://img.shields.io/badge/Prisma-6-2D3748?style=for-the-badge&logo=prisma&logoColor=white" alt="Prisma">
-  <img src="https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker Compose">
-</p>
+## Iniciar com Docker no Windows
 
-<p align="center"><strong>O conhecimento aparece no currículo. A competência se revela na prática.</strong></p>
+Pré-requisito: [Docker Desktop](https://docs.docker.com/desktop/setup/install/windows-install/) aberto, usando **containers Linux** e integração WSL 2 habilitada.
 
----
-
-## O que é o Purple Talent?
-
-O **Purple Talent** conecta desafios práticos de cibersegurança ao processo de descoberta de talentos. Participantes investigam falhas, analisam evidências e documentam soluções; recrutadores podem examinar os resultados e compreender o raciocínio por trás de cada resolução.
-
-O projeto nasce no **Desafio de Ideias do SENAI**, no contexto do projeto SAGA e da proposta de CTF **Purple Team**, com a **LabWare como empresa destinatária da proposta**. O objetivo é aproximar formação prática e recrutamento, com atenção à segurança de aplicações e aos contextos de sistemas laboratoriais.
-
-A intenção de uso pela empresa orienta o desenvolvimento. Dados demonstrativos e vagas fictícias não representam processos seletivos reais, parceria comercial formalizada ou homologação em produção.
-
-## O que ele entrega?
-
-### Para quem participa
-
-- Desafios de ataque, defesa e convergência Purple Team.
-- Envio de bandeiras e relatórios de resolução.
-- Pontuação vinculada a resultados aceitos pelo servidor.
-- Dossiê que reúne perfil e evidências técnicas.
-
-### Para quem recruta
-
-- Talent Pool e ranking por trilha e pontuação.
-- Consulta de competências informadas e resoluções registradas.
-- Vagas relacionadas às trilhas de cibersegurança.
-- Uma base para avaliar evidências, complementada pela análise humana.
-
-### Para quem organiza
-
-- Ambiente local reproduzível com Docker Compose.
-- Banco PostgreSQL e migrações versionadas.
-- Laboratório educativo separado da plataforma.
-- Testes de API, regras de acesso e documentação operacional.
-
-> **Evolução em andamento:** cadastro, perfil com consentimento, avaliação por rubrica, relatório para impressão, compatibilidade de vagas e acompanhamento de candidaturas. A implementação e a verificação de cada fluxo são registradas nos documentos abaixo; esta seção será atualizada a cada marco concluído.
-
-## Como funciona?
-
-```text
-Participante → desafio autorizado → investigação e resolução
-                                        ↓
-                           flag + relatório + evidências
-                                        ↓
-                         pontuação e avaliação humana
-                                        ↓
-                        dossiê → oportunidades → seleção
-```
-
-Red Team explora os problemas do cenário autorizado. Blue Team investiga e propõe medidas de defesa. Purple Team conecta as descobertas à melhoria da proteção. O ranking apoia a análise: não decide contratações e não substitui a avaliação do contexto.
-
-## Arquitetura
-
-```text
-Navegador
-   │ mesma origem
-   ▼
-Gateway Nginx :8088
-   ├── /       → PHP + HTML + JavaScript + Tailwind
-   └── /api/   → Fastify → Prisma → PostgreSQL
-
-Laboratório CTF :8091
-   └── rede independente, acesso local e dados fictícios
-```
-
-O PHP monta páginas e componentes. A API centraliza identidade, permissões e regras de negócio. Os serviços de laboratório não têm acesso direto ao banco ou à API e não recebem o socket do Docker.
-
-## Proteções implementadas na fundação
-
-| Área | Controle |
-| --- | --- |
-| Autenticação | Senhas com scrypt e sessões persistidas por hash |
-| Navegador | Cookie HttpOnly, SameSite e validação de origem nas mutações |
-| Acesso | Papéis verificados na API e restrição do dossiê individual |
-| Validação | Schemas de entrada, limites de tamanho e tentativas |
-| Pontuação | Validação no servidor e unicidade por participante/desafio |
-| Banco | Relações e restrições versionadas em migrações |
-| Laboratório | Rede separada, recursos limitados e porta em loopback |
-| Interface | Conteúdo do usuário renderizado como texto e CSP |
-
-Esses controles são verificáveis no código e nos testes. Não constituem certificação de segurança ou conformidade legal. A operação pública requer revisão própria de infraestrutura, privacidade, capacidade, backup e monitoramento.
-
-## Stack tecnológica
-
-| Camada | Tecnologia |
-| --- | --- |
-| Páginas e componentes | PHP + HTML |
-| Interações e API client | JavaScript com módulos ES |
-| Estilos | CSS + Tailwind CSS compilado |
-| API | Node.js + Fastify |
-| Persistência | Prisma + PostgreSQL |
-| Ambiente | Docker Compose + Nginx |
-| Testes | Node.js test runner, Fastify inject e navegador Playwright |
-| Tipografia | Plus Jakarta Sans, Inter e JetBrains Mono locais |
-
-## Documentação
-
-- [Planejamento e etapas](PLANEJAMENTO.md): escopo, personas, arquitetura, critérios de aceite, riscos e gestão dos agentes.
-- [Execução Docker e laboratório](infra/README.md): configuração, inicialização e diagnóstico.
-- [Contrato e operação da API](api/README.md).
-- [Evidências de verificação](docs/VERIFICACAO.md).
-
-Os arquivos em `stitch_purple_ctf_talent_platform/` são referências preservadas. A interface utiliza Plus Jakarta Sans, Inter e JetBrains Mono, com fontes locais e CSS compilado. A empresa, as oportunidades e os candidatos da demonstração não representam parceria comercial ou processo seletivo real.
-
-## Como rodar
-
-Requer Docker Desktop com engine Linux ativo e Compose. Em uma instalação nova, copie `.env.example` para `.env` e preencha os valores locais conforme `infra/README.md`. Se `.env` já existe, preserve-o: mudar a senha na configuração não muda automaticamente a senha do volume PostgreSQL.
+Na pasta deste projeto, execute no PowerShell:
 
 ```powershell
-docker compose config --quiet
-docker compose up --build -d
-docker compose run --rm api npm run db:seed
-docker compose ps
+.\scripts\setup.ps1
 ```
 
-Abra [a plataforma local](http://localhost:8088). Contas fictícias: `recrutador@purpletalent.local` e `candidato@purpletalent.local`; a senha é o valor de `DEMO_PASSWORD` no seu ambiente local. Não há senha pública fixa no código.
+O script gera `.env` com chaves aleatórias, constrói a plataforma e as duas imagens dos desafios, e inicia somente a plataforma. Não imprime a senha. Abra **http://localhost:5000**.
 
-Para incluir o exercício opcional:
+- Mentor: `mentor@cti.local`. A senha está em `MENTOR_PASSWORD` no `.env`.
+- Participantes: use **Criar perfil**; não há participantes fictícios no ranking.
+- Se o PowerShell bloquear scripts, execute `powershell -ExecutionPolicy Bypass -File .\scripts\setup.ps1` para esta execução.
+- A senha de mentor é aplicada apenas ao criar um banco vazio. Alterar `.env` não altera contas já existentes.
+
+Com `.env` já configurado, os comandos equivalentes são:
 
 ```powershell
-docker compose --profile labs up --build -d lab
+docker compose --profile images build
+docker compose up -d platform
+docker compose logs -f platform
 ```
 
-O laboratório fica em [localhost:8091](http://localhost:8091). O desafio `web-investigation` usa a mesma `LAB_FLAG` configurada antes do primeiro seed. Reiniciar o laboratório não apaga o banco. Não exponha este ambiente vulnerável à internet.
+Dentro de **Desafios CTF**, abra **Intranet esquecida** ou **SQL no login** e clique em **Iniciar ambiente**. O servidor cria um container individual e mostra um endereço `http://127.0.0.1:PORTA`. Não é necessário iniciar os serviços de imagem com `compose up`; são apenas definições para build.
 
-## Estrutura e responsabilidades
+## Funcionalidades
 
-| Pasta | Conteúdo |
-| --- | --- |
-| `web/` | Páginas PHP, componentes, interação JS, estilos e fontes |
-| `api/` | API Fastify, autenticação, regras, Prisma, migração e seed |
-| `infra/` | Gateway Nginx e operação local |
-| `labs/` | Laboratório independente e testes |
-| `docs/` | Evidências e pendências da entrega |
+- Cadastro, login e separação de permissões entre mentor e participante.
+- Oito desafios: aquecimento, intranet, base64, análise de logs, César, base64 em camadas, reversa e SQL no login.
+- Dois alvos Docker com flags aleatórias por instância; demais exercícios são resolvidos na plataforma.
+- Validação de flags e contagem de pontos no servidor. Cada CTF conta uma vez por usuário.
+- Arena Purple Team: cinco ações, comparação com alertas simulados e relatório persistido. Até 150 pontos técnicos; usa-se a melhor tentativa.
+- Dashboard com resultados individuais e por equipe, tentativas, tempo médio e avaliações de 1 a 5 em lógica, comunicação, colaboração e decisão.
+- Relatórios disponíveis na ficha do participante para revisão humana. O tamanho do texto não gera nota de qualidade automática.
+- Ranking autenticado com dados reais.
 
-O PHP compõe a interface. A API é a única camada que autentica usuários, aplica permissões e acessa o banco. O gateway publica páginas e `/api/` na mesma origem. O laboratório não compartilha a rede do banco ou da API.
+As telas fictícias de empresas/convites e os resultados locais do protótipo não foram transportados como funcionalidades operacionais. A proposta entregue enfatiza desafios, treinamento e mentoria. Não há envio de e-mails ou integração com recrutadores externos. A rodada Purple é um exercício guiado com logs simulados, sem provisionar Windows, SIEM ou EDR reais.
 
-## Verificar componentes
+## Ciclo de vida dos ambientes
+
+Cada alvo recebe rede própria e porta aleatória vinculada ao loopback do host Docker. Possui limites de memória, CPU e processos, usuário sem privilégios, filesystem somente leitura e nenhuma montagem do host. A rede interna restringe saída externa. Veja [publicação de portas](https://docs.docker.com/engine/network/port-publishing/) e [opções do SDK](https://docker-py.readthedocs.io/en/stable/containers.html).
+
+Padrões em `.env`: `LAB_TTL_SECONDS=3600`, `LAB_MAX_ACTIVE=10` e `LAB_MAX_PER_USER=2`. Um processo de limpeza verifica expiração a cada minuto enquanto a plataforma está ativa. Reinícios reconciliam containers e registros sem apagar sessões ativas válidas. Se a plataforma estiver parada, a limpeza só será retomada quando ela iniciar.
+
+**Escopo local:** abra a plataforma e os alvos no mesmo computador do Docker. O socket Docker montado na plataforma concede poder administrativo sobre o Engine. Essa configuração é para demonstração controlada, com usuários confiáveis; publicação em rede exige arquitetura e isolamento adicionais. Containers compartilham o kernel e não equivalem a máquinas virtuais completas. Use um único processo/replica da plataforma.
+
+Para encerrar os alvos, entre como mentor em **Ambientes → Encerrar todos**; depois rode `docker compose down`. O `compose down` sozinho não remove containers dinâmicos criados pelo SDK. O volume `lab-data` preserva contas e resultados. O `lab.db` original da pasta não é copiado para a imagem nem alterado pelo Compose.
+
+## Executar sem containerizar a plataforma
+
+O ambiente `.venv` foi criado nesta pasta. Para recriar:
 
 ```powershell
-Push-Location api
-npm ci
-npm run db:generate
-npm test
-Pop-Location
-Push-Location web
-npm ci
-npm run build
-Pop-Location
-node --test labs/access-review/server.test.mjs
-docker compose config --quiet
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+$env:SECRET_KEY = 'defina-uma-chave-longa-aleatoria'
+$env:MENTOR_PASSWORD = 'defina-uma-senha-forte'
+.\.venv\Scripts\python.exe app.py
 ```
 
-Os testes da API com repositório em memória não comprovam migrações ou concorrência no PostgreSQL. Consulte as evidências para distinguir verificações executadas de integrações ainda pendentes.
+Sem Docker, cadastro, desafios estáticos, Purple, ranking e mentoria funcionam; os alvos individuais ficam indisponíveis. Em modo local, variáveis de `.env` não são carregadas automaticamente. O banco padrão é `lab.db`; use `DATABASE_PATH` para escolher outro arquivo. Se `MENTOR_PASSWORD` não for definida em um banco novo local, a credencial de desenvolvimento é `mentor123`. Configure-a antes de usar dados reais. `HOST` e `PORT` também podem ser definidos; o padrão local é `127.0.0.1:5000`.
 
-## Estado e próximos passos
+## Validação
 
-A fundação inclui páginas de painel, ranking, arenas, dossiê, vagas e login, contrato de API, pontuação por submissão aceita e exercício educativo. O avanço depende dos critérios em `PLANEJAMENTO.md`: evento/equipes, revisão humana de evidências, relatório, proteção de dados, piloto e posterior produção.
+```powershell
+.\.venv\Scripts\python.exe -m unittest discover -s tests -v
+```
 
-Não há contratação automática, antifraude garantido, correção automática de defesa ou terminal remoto. O acompanhamento das etapas está no [aceite da versão](docs/ACEITE-V1.md). Uso com dados reais e publicação em produção exigem validação operacional própria.
+A suíte usa bancos temporários e simula o Engine nos testes de ciclo de vida: verifica permissões, CSRF, pontuação, relatórios, avaliação, exclusividade de flags entre usuários, limites, expiração, recuperação após reinício e o alvo SQL. Não substitui um teste com Docker real.
 
-Este subprojeto tem repositório próprio: [Breno-J-Oliveira/purple-talent](https://github.com/Breno-J-Oliveira/purple-talent). O versionamento é independente do portfólio pai; seu `.gitignore` não foi alterado. Arquivos `.env`, dependências e artefatos temporários ficam fora do Git.
+Com Docker aberto e imagens construídas, valide os dois alvos reais:
 
-## Desenvolvimento e revisão humana
+```powershell
+.\.venv\Scripts\python.exe scripts/smoke_docker.py
+```
 
-Cada marco registra o comportamento entregue, os testes executados e as limitações conhecidas. A versão final de revisão deve cumprir os critérios em [ACEITE-V1](docs/ACEITE-V1.md). A aprovação de conteúdo, identidade e aderência ao contexto do SENAI e da empresa será feita pelo responsável pelo projeto.
-
-O formato desta documentação foi inspirado no [README do NexusAuth](https://github.com/Breno-J-Oliveira/NexusAuth), adaptando a apresentação à arquitetura e às evidências do Purple Talent.
-
-## Autor e contato
-
-Desenvolvido por **Breno J. Oliveira**, no contexto do Desafio de Ideias do SENAI.
-
-<p align="center">
-  <a href="https://github.com/Breno-J-Oliveira"><img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub de Breno"></a>
-  <a href="https://www.linkedin.com/in/breno-j-oliveira-672619352/"><img src="https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn de Breno"></a>
-</p>
+Esse teste cria alvos temporários, acessa as flags via HTTP e remove containers/redes no final. No ambiente em que esta implementação foi preparada, Docker não estava instalado/disponível; build, Compose e isolamento em execução ainda precisam dessa validação.

@@ -1,0 +1,33 @@
+name: cti-purple-lab
+services:
+  platform:
+    build: .
+    ports:
+      - "127.0.0.1:5000:5000"
+    environment:
+      SECRET_KEY: ${SECRET_KEY:?Execute scripts/setup.ps1 para gerar o arquivo .env}
+      MENTOR_PASSWORD: ${MENTOR_PASSWORD:?Defina MENTOR_PASSWORD no arquivo .env}
+      DATABASE_PATH: /data/lab.db
+      LAB_TTL_SECONDS: ${LAB_TTL_SECONDS:-3600}
+      LAB_MAX_ACTIVE: ${LAB_MAX_ACTIVE:-10}
+      LAB_MAX_PER_USER: ${LAB_MAX_PER_USER:-2}
+    volumes:
+      - lab-data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/health', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+  web01-image:
+    profiles: ["images"]
+    image: cti-lab/web-01
+    build: ./challenges/web-01
+  web02-image:
+    profiles: ["images"]
+    image: cti-lab/web-02
+    build: ./challenges/web-02
+volumes:
+  lab-data:

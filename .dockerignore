@@ -1,6 +1,10 @@
-.git
 .env
-**/node_modules
-**/coverage
-**/test-results
-stitch_purple_ctf_talent_platform
+.venv
+__pycache__
+*.db
+.git
+artifacts
+tests
+
+.playwright-cli
+output

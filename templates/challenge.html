@@ -7,8 +7,8 @@
 <h1>{{ c.title }}</h1>
 <p>{{ c.category }}</p>
 </section>
-<div class="two-columns">
-<div>
+<div class="two-columns challenge-layout">
+<div class="challenge-briefing">
 <section class="card">
 <h2>Briefing da missão</h2>
 <div class="pre">{{ c.description }}</div>
@@ -16,7 +16,7 @@
 <summary>Precisa de uma dica?</summary>
 <p>{{ c.hint }}</p>
 </details>{% endif %}</div>
-<div>{% if c.image %}<section class="card lab-card">
+<div class="challenge-actions">{% if c.image %}<section class="card lab-card">
 <h2>Seu ambiente virtual</h2>{% if inst %}{% if inst.available %}<span class="tag blueteam">Ambiente iniciado</span>
 <p>Acesse a intranet para investigar as pistas.</p>
 <a class="button secondary full" href="http://127.0.0.1:{{ inst.port }}" target="_blank" rel="noopener noreferrer">Abrir laboratório ↗</a>

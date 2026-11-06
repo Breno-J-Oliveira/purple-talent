@@ -2,3 +2,16 @@
 @media(max-width:1000px){.landing-hero{gap:28px}.landing-hero h1{font-size:42px}.journey-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.study-layout{grid-template-columns:1fr}.purple-columns{grid-template-columns:1fr}}
 @media(max-width:640px){.landing-hero{grid-template-columns:1fr;padding:12px 0 28px}.landing-hero h1{font-size:36px}.landing-hero>div>p{font-size:16px}.learning-console{padding:20px;font-size:12px;overflow-wrap:anywhere}.landing-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;padding:20px;margin-bottom:36px}.landing-metrics strong{font-size:28px}.landing-links,.journey-grid{grid-template-columns:1fr}.study-feature{padding:22px}.study-feature h2{font-size:24px}}
 @media print{.landing-hero,.study-layout,.purple-columns,.journey-grid,.landing-links{display:block}}
+
+/* O detalhe mantém suas colunas e textos dentro do painel, inclusive com logs e URLs longos. */
+.challenge-layout{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);align-items:start}
+.challenge-layout>div{min-width:0}
+.challenge-layout .card{overflow-wrap:anywhere}
+.challenge-layout .pre{white-space:pre-wrap;overflow-wrap:anywhere;max-width:100%}
+.challenge-layout pre,.challenge-layout code{font-family:Mono,monospace;white-space:pre-wrap;overflow-wrap:anywhere}
+.challenge-layout .full{max-width:100%;white-space:normal}
+.challenge-layout .field-help{margin:16px 0 0;line-height:1.7}
+.challenge-layout .lab-card{border-top:3px solid var(--blue)}
+.challenge-layout details>summary{line-height:1.6}
+@media(max-width:900px){.challenge-layout{grid-template-columns:minmax(0,1fr);gap:4px}}
+@media print{.challenge-layout{display:block}.challenge-layout .pre{color:black}.challenge-actions form{display:none}}

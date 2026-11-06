@@ -1,15 +1,73 @@
-{% extends "base.html" %}{% block content %}
-<h1>{{ u.name }}</h1><p>Equipe: {{ u.team }}</p>
-{% if s %}<p>{{ s.solved }} desafios · {{ s.points }} pts · {{ s.attempts }} tentativas · tempo médio {{ s.avg_min if s.avg_min is not none else '—' }} min</p>{% endif %}
-<h2>Avaliação do mentor (1 a 5)</h2>
-<form method="post" class="card narrow"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-{% for k, label in [('logica','Raciocínio lógico'),('comunicacao','Comunicação'),('colaboracao','Colaboração'),('decisao','Tomada de decisão')] %}
-<label>{{ label }}<input type="number" name="{{ k }}" min="1" max="5" value="3"></label>{% endfor %}
-<label>Observações<textarea name="notes" rows="3"></textarea></label>
-<button>Salvar avaliação</button></form>
-{% for e in evals %}<div class="card">Lógica {{ e.logica }} · Comunicação {{ e.comunicacao }} · Colaboração {{ e.colaboracao }} · Decisão {{ e.decisao }}<br>{{ e.notes }}</div>{% endfor %}
-<h2>Relatórios Purple Team</h2>{% for r in reports %}<div class="card"><h3>Nota técnica: {{ r.score }}/150 · {{ fmt(r.created_at) }}</h3><p class="pre">{{ r.report }}</p></div>{% else %}<p>Nenhum relatório enviado.</p>{% endfor %}<h2>Histórico de tentativas</h2>
-<div class="table-scroll"><table><tr><th>Desafio</th><th>Resultado</th><th>Quando</th></tr>
-{% for a in attempts %}<tr><td>{{ a.title }}</td><td>{{ '✔ Correta' if a.correct else '✘ Errada' }}</td><td>{{ fmt(a.created_at) }}</td></tr>
-{% else %}<tr><td colspan="3">Sem tentativas.</td></tr>{% endfor %}</table></div>
-<p><a href="/dashboard">← Dashboard</a></p>{% endblock %}
+{% extends "base.html" %}{% block title %}Dossiê de {{ u.name }}{% endblock %}{% block content %}<a class="back" href="/dashboard">← Painel de avaliação</a>
+<section class="page-heading dossier-heading">
+<span class="pill">Dossiê do candidato</span>
+<h1>{{ u.name }}</h1>
+<p>Equipe {{ u.team }}</p>
+<button type="button" class="secondary" data-print>Imprimir dossiê</button>
+</section>{% if s %}<div class="metrics">
+<div>
+<span>Pontuação</span>
+<strong>{{ s.points }}</strong>
+</div>
+<div>
+<span>Desafios concluídos</span>
+<strong>{{ s.solved }}</strong>
+</div>
+<div>
+<span>Tentativas</span>
+<strong>{{ s.attempts }}</strong>
+</div>
+<div>
+<span>Tempo médio</span>
+<strong>{{ s.avg_min if s.avg_min is not none else '—' }} <small>min</small>
+</strong>
+</div>
+</div>{% endif %}<div class="two-columns">
+<section class="card evaluation-form">
+<h2>Avaliação do mentor</h2>
+<p class="muted">Registre notas de 1 a 5 com base nas evidências observadas.</p>
+<form method="post">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">{% for k,label in [('logica','Raciocínio lógico'),('comunicacao','Comunicação'),('colaboracao','Colaboração'),('decisao','Tomada de decisão')] %}<label>{{ label }}<select name="{{ k }}" required>{% for n in range(1,6) %}<option value="{{ n }}" {{ 'selected' if n == 3 }}>{{ n }} de 5</option>{% endfor %}</select>
+</label>{% endfor %}<label>Observações<textarea name="notes" maxlength="3000" rows="4" placeholder="Descreva as evidências que sustentam sua avaliação.">
+</textarea>
+</label>
+<button>Salvar avaliação</button>
+</form>
+</section>
+<section>
+<h2>Avaliações registradas</h2>{% for e in evals %}<article class="card">
+<p class="mono">{{ fmt(e.created_at) }}</p>
+<dl class="rating-list">
+<dt>Raciocínio lógico</dt>
+<dd>{{ e.logica }}/5</dd>
+<dt>Comunicação</dt>
+<dd>{{ e.comunicacao }}/5</dd>
+<dt>Colaboração</dt>
+<dd>{{ e.colaboracao }}/5</dd>
+<dt>Tomada de decisão</dt>
+<dd>{{ e.decisao }}/5</dd>
+</dl>
+<p class="pre">{{ e.notes or 'Sem observações adicionais.' }}</p>
+</article>{% else %}<p class="empty card">Este participante ainda não recebeu uma avaliação.</p>{% endfor %}</section>
+</div>
+<div class="table-wrap" tabindex="0" role="region" aria-label="Tabela com rolagem horizontal">
+<table>
+<caption>Histórico de tentativas</caption>
+<thead>
+<tr>
+<th>Desafio</th>
+<th>Resultado</th>
+<th>Data</th>
+</tr>
+</thead>
+<tbody>{% for a in attempts %}<tr>
+<td>{{ a.title }}</td>
+<td>
+<span class="tag {{ 'blueteam' if a.correct else 'redteam' }}">{{ 'Correta' if a.correct else 'Incorreta' }}</span>
+</td>
+<td>{{ fmt(a.created_at) }}</td>
+</tr>{% else %}<tr>
+<td colspan="3" class="empty">Nenhuma tentativa registrada.</td>
+</tr>{% endfor %}</tbody>
+</table>
+</div>{% endblock %}

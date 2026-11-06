@@ -1,1 +1,6 @@
-{% extends "base.html" %}{% block content %}<h1>Ambiente indisponível</h1><p role="alert">{{ message }}</p><a class="btn" href="/challenges">Voltar aos desafios</a>{% endblock %}
+{% extends "base.html" %}{% block title %}Não foi possível continuar{% endblock %}{% block content %}<section class="card error-page">
+<span class="pill">{{ code|default('Aviso') }}</span>
+<h1>{{ title|default('Não foi possível continuar') }}</h1>
+<p>{{ message|default('Verifique o endereço ou volte para a página inicial.') }}</p>
+<a class="button" href="/">Voltar ao início</a>
+</section>{% endblock %}

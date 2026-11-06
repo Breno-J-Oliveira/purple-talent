@@ -1,93 +1,119 @@
-"""Containers de laboratório gerenciados pelo Docker Engine local."""
+"""Ambientes Docker locais. Apenas imagens e containers deste projeto são aceitos."""
+import json
 import os
-from pathlib import Path
-import docker
+import re
+import subprocess
+import time
+import urllib.error
+import urllib.request
 
-BASE = Path(__file__).resolve().parent
-OWNER = "cti-purple-lab"
-IMAGE_DIRS = {f"cti-lab/web-0{i}": BASE / "challenges" / f"web-0{i}" for i in (1, 2)}
+BASE = os.path.dirname(os.path.abspath(__file__))
+NETWORK = "cti-lab-net"
+LABEL = "cti-lab=1"
+IMAGE_DIRS = {"cti-lab/web-01": os.path.join(BASE, "challenges", "web-01")}
+NAME = re.compile(r"lab-u[0-9]+-c[0-9]+-[a-f0-9]{6,32}\Z")
+
 
 class DockerError(Exception):
     pass
 
-def client():
-    try:
-        return docker.from_env(timeout=120)
-    except docker.errors.DockerException as exc:
-        raise DockerError("Docker Engine indisponível. Abra o Docker Desktop em modo Linux.") from exc
 
-def start(name, image, container_port, flag):
-    if image not in IMAGE_DIRS:
-        raise DockerError("Imagem de laboratório não autorizada.")
-    api = client()
-    network = None
-    container = None
+def _docker(*args, timeout=60, env=None):
     try:
-        try:
-            api.images.get(image)
-        except docker.errors.ImageNotFound:
-            api.images.build(path=str(IMAGE_DIRS[image]), tag=image, rm=True)
-        # Uma rede por instância, sem saída para a internet ou para outras redes.
-        network = api.networks.create(name, driver="bridge", internal=True,
-                                      labels={"cti.owner": OWNER})
-        container = api.containers.run(
-            image, detach=True, name=name, network=network.name,
-            labels={"cti.owner": OWNER}, environment={"FLAG": flag},
-            ports={f"{container_port}/tcp": ("127.0.0.1", None)},
-            mem_limit="128m", memswap_limit="128m", nano_cpus=500_000_000,
-            pids_limit=100, cap_drop=["ALL"], security_opt=["no-new-privileges:true"],
-            read_only=True, tmpfs={"/tmp": "rw,noexec,nosuid,size=16m"},
-            user="10001:10001", init=True,
-            log_config=docker.types.LogConfig(type="json-file", config={"max-size": "1m", "max-file": "1"}))
-        container.reload()
-        bindings = container.attrs["NetworkSettings"]["Ports"][f"{container_port}/tcp"]
-        return int(bindings[0]["HostPort"])
-    except (docker.errors.DockerException, KeyError, TypeError, ValueError) as exc:
-        if container is not None:
-            container.remove(force=True)
-        if network is not None:
-            network.remove()
-        raise DockerError("Não foi possível preparar o container. Confira o Docker e as imagens do laboratório.") from exc
-    finally:
-        api.close()
+        result = subprocess.run(["docker", *args], capture_output=True, text=True,
+                                encoding="utf-8", errors="replace", timeout=timeout, env=env)
+    except FileNotFoundError as error:
+        raise DockerError("Docker não encontrado. Instale e abra o Docker Desktop.") from error
+    except subprocess.TimeoutExpired as error:
+        raise DockerError("O Docker demorou demais para responder. Verifique o Docker Desktop.") from error
+    if result.returncode:
+        # Docker can echo flags, environment values and host paths in errors.
+        raise DockerError("O Docker não concluiu a operação. Verifique se o Docker Desktop está ativo.")
+    return result.stdout.strip()
+
+
+def ensure_network():
+    names = _docker("network", "ls", "--filter", f"name=^{NETWORK}$", "--format", "{{.Name}}")
+    if NETWORK not in names.splitlines():
+        _docker("network", "create", "--driver", "bridge", "--label", LABEL,
+                "-o", "com.docker.network.bridge.enable_icc=false", NETWORK)
+    network = json.loads(_docker("network", "inspect", NETWORK))[0]
+    if network.get("Options", {}).get("com.docker.network.bridge.enable_icc") != "false":
+        raise DockerError("A rede do laboratório não está isolada. Revise a configuração da rede cti-lab-net.")
+
+
+def ensure_image(image):
+    if image not in IMAGE_DIRS:
+        raise DockerError("Imagem de laboratório não permitida.")
+    images = _docker("image", "ls", "--filter", f"reference={image}", "--format", "{{.ID}}")
+    if not images:
+        _docker("build", "-t", image, IMAGE_DIRS[image], timeout=600)
+
+
+def _validate_name(name):
+    if not isinstance(name, str) or not NAME.fullmatch(name):
+        raise DockerError("Identificador de ambiente inválido.")
+
+
+def _owned_names():
+    return _docker("ps", "-a", "--filter", f"label={LABEL}", "--format", "{{.Names}}").splitlines()
+
+
+def status(name):
+    _validate_name(name)
+    names = _docker("ps", "--filter", f"label={LABEL}", "--format", "{{.Names}}", timeout=5)
+    return name in names.splitlines()
+
 
 def stop(name):
-    api = client()
-    try:
-        try:
-            container = api.containers.get(name)
-            if container.labels.get("cti.owner") != OWNER:
-                raise DockerError("O container não pertence ao laboratório.")
-            container.remove(force=True)
-        except docker.errors.NotFound:
-            pass
-        try:
-            network = api.networks.get(name)
-            if network.attrs.get("Labels", {}).get("cti.owner") == OWNER:
-                network.remove()
-        except docker.errors.NotFound:
-            pass
-    except docker.errors.DockerException as exc:
-        raise DockerError("Falha ao encerrar o ambiente; tente novamente.") from exc
-    finally:
-        api.close()
+    """Ausência é idempotente; falhas reais não podem ser registradas como sucesso."""
+    _validate_name(name)
+    if name in _owned_names():
+        _docker("rm", "-f", name)
 
-def running_names():
-    api = client()
+
+def start(name, image, container_port, flag):
+    _validate_name(name)
+    if image not in IMAGE_DIRS or container_port != 5000:
+        raise DockerError("Configuração de laboratório não permitida.")
+    if not isinstance(flag, str) or not re.fullmatch(r"CTF\{[a-f0-9]{16,64}\}", flag):
+        raise DockerError("Configuração de flag inválida.")
+    ensure_network()
+    ensure_image(image)
+    env = os.environ.copy()
+    env["FLAG"] = flag
+    # Docker chooses the free port atomically. The secret is not in process arguments.
+    _docker("run", "-d", "--rm", "--name", name, "--label", LABEL, "--network", NETWORK,
+            "-p", "127.0.0.1::5000", "-e", "FLAG", "--memory", "128m", "--cpus", "0.5",
+            "--pids-limit", "64", "--cap-drop", "ALL", "--security-opt", "no-new-privileges",
+            "--read-only", "--tmpfs", "/tmp:rw,noexec,nosuid,size=16m", image, env=env)
     try:
-        # Inclui containers parados para remover os que falharam ou expiraram.
-        containers = api.containers.list(all=True, filters={"label": f"cti.owner={OWNER}"})
-        running = set()
-        for container in containers:
-            if container.status == "running":
-                running.add(container.name)
-            else:
-                stop(container.name)
-        for network in api.networks.list(filters={"label": f"cti.owner={OWNER}"}):
-            if network.name not in running:
-                network.remove()
-        return running
-    except docker.errors.DockerException as exc:
-        raise DockerError("Falha ao consultar os ambientes Docker.") from exc
-    finally:
-        api.close()
+        mapping = json.loads(_docker("inspect", "--format", "{{json .NetworkSettings.Ports}}", name))
+        binding = mapping["5000/tcp"][0]
+        if binding["HostIp"] != "127.0.0.1":
+            raise DockerError("O ambiente não recebeu uma porta local segura.")
+        port = int(binding["HostPort"])
+        deadline = time.monotonic() + 30
+        while time.monotonic() < deadline:
+            try:
+                with urllib.request.urlopen(f"http://127.0.0.1:{port}/health", timeout=2) as response:
+                    if response.status == 200:
+                        return port
+            except (urllib.error.URLError, TimeoutError, OSError):
+                time.sleep(0.25)
+        raise DockerError("O laboratório não ficou pronto. Tente iniciar novamente.")
+    except (KeyError, IndexError, ValueError, TypeError) as error:
+        stop(name)
+        raise DockerError("O Docker retornou uma configuração de porta inválida.") from error
+    except Exception:
+        stop(name)
+        raise
+
+
+def cleanup_all():
+    """Limpeza explícita; não executar automaticamente em toda inicialização."""
+    for name in _owned_names():
+        if NAME.fullmatch(name):
+            stop(name)
+
+

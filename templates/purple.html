@@ -1,15 +1,3 @@
-{% extends "base.html" %}{% block content %}
-<h1>Arena Purple Team</h1><p>Rodada 1 · Phishing até movimento lateral. Identifique as técnicas e compare os passos com os alertas do SIEM.</p>
-<div class="arena"><div class="red"><h3 class="r">Red Team</h3><p>Mapeie cada ação à técnica ATT&amp;CK correspondente.</p></div><div class="blue"><h3 class="b">Blue Team</h3><p>Use os registros abaixo para identificar ações sem detecção e sugerir melhorias.</p></div></div>
-<pre class="code mono">09:01 SIEM ALERTA: anexo .docm recebido por e-mail
-09:02 SIEM ALERTA: Office iniciou PowerShell codificado
-09:08 SIEM ALERTA: nova tarefa agendada
-Nenhum outro alerta foi registrado durante o exercício.</pre>
-<p>Melhor resultado técnico: <b>{{ best }} / 150</b>. O relatório e as habilidades comportamentais são avaliados pelo mentor.</p>
-{% if feedback is not none %}<div class="merge" role="status"><h3>Resultado técnico: {{ score }} / 150</h3>{% for line in feedback %}<p>{{ line }}</p>{% endfor %}<p>Relatório salvo para revisão do mentor.</p></div>{% endif %}
-<form method="post" style="max-width:none"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-{% for step in steps %}{% set i=loop.index0 %}<div class="card"><h3>Passo {{ loop.index }}</h3><p>{{ step[0] }}</p>
-<label>Técnica ATT&amp;CK<select name="t{{ i }}" required><option value="">Escolha</option>{% for t in techniques|sort %}<option>{{ t }}</option>{% endfor %}</select></label>
-<label>Houve alerta?<select name="d{{ i }}" required><option value="">Escolha</option><option value="s">Sim</option><option value="n">Não</option></select></label></div>{% endfor %}
-<label>Relatório: quais técnicas ficaram sem alerta? Que regras e evidências você usaria para melhorar a detecção?<textarea name="report" rows="6" minlength="100" maxlength="10000" required></textarea></label>
-<button>Enviar rodada e relatório</button></form>{% endblock %}
+{% extends "base.html" %}{% block title %}Purple Team{% endblock %}{% block content %}
+<section class="page-heading"><h1>Aprenda Purple Team</h1><p>Combine investigação ofensiva, análise defensiva e comunicação das descobertas.</p></section><div class="purple-columns"><article class="card"><span class="tag redteam">Red Team</span><h2>Pense como um atacante</h2><p>Investigue a intranet do laboratório, siga as pistas e descubra os dados que deveriam estar protegidos.</p><a class="button secondary" href="/labs">Abrir laboratório</a></article><article class="card"><span class="tag blueteam">Blue Team</span><h2>Observe as evidências</h2><p>Analise os registros de autenticação, identifique padrões e explique o que pode indicar uma tentativa de ataque.</p><a class="button secondary" href="/challenge/4">Analisar logs</a></article><article class="card"><span class="tag">Purple Team</span><h2>Compartilhe o aprendizado</h2><p>Entenda por que a falha ocorreu e como poderia ser evitada. A mentoria pode registrar avaliações e observações no seu dossiê.</p><a class="button secondary" href="{{ '/dashboard' if session.role == 'mentor' else '/profile' }}">{{ 'Abrir painel de avaliação' if session.role == 'mentor' else 'Ver meu progresso' }}</a></article></div><section class="card"><h2>Da descoberta à melhoria</h2><p>A prática ofensiva revela uma exposição; a análise defensiva ajuda a entender seus sinais. Documentar o raciocínio permite discutir uma correção e aprender com ela. Os desafios desta plataforma são exercícios educacionais; a avaliação da mentoria complementa a pontuação obtida nas flags.</p><a class="button" href="/challenges">Começar pelos desafios</a></section>
+{% endblock %}
